@@ -129,6 +129,4 @@ def convert_lce_map(filename, outname, n_channels=98, tpc_radius=15.5):
         bla = json.dumps(output)
         outfile.write(bla.encode())
 
-
-
 convert_lce_map("xy-lce-map2.5mm.dat", "XENON100_s2_xy_patterns_Xerawdp0.4.5.json.gz")
