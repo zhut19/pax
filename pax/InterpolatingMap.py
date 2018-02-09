@@ -4,7 +4,7 @@ import json
 import re
 
 import numpy as np
-from scipy.spatial import KDTree
+from scipy.spatial import KDTree, cKDTree
 
 
 ##
@@ -20,18 +20,22 @@ class InterpolateAndExtrapolate(object):
         """By default, interpolates between the 2 * dimensions of space nearest neighbours,
         weighting factors = 1 / distance to neighbour
         """
-        self.kdtree = KDTree(points)
+        self.kdtree = cKDTree(points)
         self.values = values
         if neighbours_to_use is None:
             neighbours_to_use = points.shape[1] * 2
         self.neighbours_to_use = neighbours_to_use
 
-    def __call__(self, *args):
+    def __call__(self, args):
         # Call with one point at a time only!!!
+        # Now can call with multiple points in form of (self, [(x, y, z), (x, y, z)...])
         if np.any(np.isnan(args)):
             return np.nan
         distances, indices = self.kdtree.query(args, self.neighbours_to_use)
+        # We are not ruturning sum of weight when using np.average
         return np.average(self.values[indices], weights=1/np.clip(distances, 1e-6, float('inf')))
+
+    __call__ = np.vectorize(__call__, signature = '(),(i)->()')
 
 
 class InterpolatingMap(object):
@@ -94,12 +98,13 @@ class InterpolatingMap(object):
          position - pax.datastructure.ReconstructedPosition instance
         """
         position_names = ['x', 'y', 'z']
-        return self.get_value(*[getattr(position, q) for q in position_names[:self.dimensions]],
+        coordinates = [getattr(position, q) for q in position_names[:self.dimensions]]
+        return self.get_value(np.array(coordinates).reshape((self.dimensions,-1)).T,
                               map_name=map_name)
 
     # get_value accepts only the map_name keyword argument, but we have to let it accept
     # **kwargs, otherwise python 2 will freak out...
-    def get_value(self, *coordinates, **kwargs):
+    def get_value(self, coordinates, **kwargs):
         """Returns the value of the map at the position given by coordinates
         Keyword arguments:
           - map_name: Name of the map to use. By default: 'map'.
@@ -110,8 +115,9 @@ class InterpolatingMap(object):
                 raise ValueError("InterpolatingMap.get_value only takes map_name keyword argument")
 
         map_name = kwargs.get('map_name', 'map')
-        result = self.interpolators[map_name](*coordinates)
-        try:
+        result = self.interpolators[map_name](self.interpolators[map_name], coordinates)
+        
+        if len(result) == 1:
             return float(result[0])
-        except (TypeError, IndexError):
-            return float(result)    # We don't want a 0d numpy array, which the 1d and 2d interpolators seem to give
+        else:
+            return result
