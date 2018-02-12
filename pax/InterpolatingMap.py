@@ -99,12 +99,12 @@ class InterpolatingMap(object):
         """
         position_names = ['x', 'y', 'z']
         coordinates = [getattr(position, q) for q in position_names[:self.dimensions]]
-        return self.get_value(np.array(coordinates).reshape((self.dimensions,-1)).T,
+        return self.get_value(np.array(*coordinates).reshape((self.dimensions,-1)).T,
                               map_name=map_name)
 
     # get_value accepts only the map_name keyword argument, but we have to let it accept
     # **kwargs, otherwise python 2 will freak out...
-    def get_value(self, coordinates, **kwargs):
+    def get_value(self, *coordinates, **kwargs):
         """Returns the value of the map at the position given by coordinates
         Keyword arguments:
           - map_name: Name of the map to use. By default: 'map'.
