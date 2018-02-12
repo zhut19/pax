@@ -35,7 +35,7 @@ class InterpolateAndExtrapolate(object):
         # We are not ruturning sum of weight when using np.average
         return np.average(self.values[indices], weights=1/np.clip(distances, 1e-6, float('inf')))
 
-    __call__ = np.vectorize(__call__, signature = '(),(i)->()')
+    v__call__ = np.vectorize(__call__, signature = '(),(i)->()')
 
 
 class InterpolatingMap(object):
@@ -98,8 +98,8 @@ class InterpolatingMap(object):
          position - pax.datastructure.ReconstructedPosition instance
         """
         position_names = ['x', 'y', 'z']
-        coordinates = [getattr(position, q) for q in position_names[:self.dimensions]]
-        return self.get_value(*np.array(coordinates).reshape((self.dimensions,-1)).T,
+        
+        return self.get_value(*[getattr(position, q) for q in position_names[:self.dimensions]],
                               map_name=map_name)
 
     # get_value accepts only the map_name keyword argument, but we have to let it accept
@@ -115,12 +115,20 @@ class InterpolatingMap(object):
                 raise ValueError("InterpolatingMap.get_value only takes map_name keyword argument")
 
         map_name = kwargs.get('map_name', 'map')
-        result = self.interpolators[map_name](self.interpolators[map_name], coordinates)
+
+        if len(np.array(coordinates).shape) <= 1:
+
+            result = self.interpolators[map_name](coordinates)
+            try: 
+                return float(result[0])
+            except(TypeError, IndexError):
+                return float(result)
+
+        else:
+            coordinates = np.array(coordinates).reshape((self.dimensions,-1)).T
+            result = self.interpolators[map_name].v__call__(self.interpolators[map_name], coordinates)
         
-        try:
             if len(result) == 1:
                 return float(result[0])
             else:
                 return result
-        except(TypeError, IndexError):
-            return float(result)
