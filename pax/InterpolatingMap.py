@@ -117,7 +117,10 @@ class InterpolatingMap(object):
         map_name = kwargs.get('map_name', 'map')
         result = self.interpolators[map_name](self.interpolators[map_name], coordinates)
         
-        if len(result) == 1:
-            return float(result[0])
-        else:
-            return result
+        try:
+            if len(result) == 1:
+                return float(result[0])
+            else:
+                return result
+        except(TypeError, IndexError):
+            return float(result)
