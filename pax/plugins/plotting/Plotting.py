@@ -346,7 +346,7 @@ class PlotBase(plugin.OutputPlugin):
                 y_ = getattr(rp, 'y')
 
                 ax.plot([x_], [y_],
-                        marker = '*',
+                        marker='*',
                         color='yellow',
                         linewidth=0, alpha=0.5,
                         markersize=10)
