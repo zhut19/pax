@@ -237,7 +237,7 @@ class PlotBase(plugin.OutputPlugin):
                 annotation_list = self.annotation_filter(event, nsamples)
                 print(annotation_filter)
             for peak in event.peaks:
-                if self.config.get('hide_peak_info') or peak.type == 'lone_hit':
+                if self.config.get('hide_peak_info') or peak.type == 'lone_hit' or peak.type == 'unknown':
                     continue
                 if annotation_filter is not None:
                     # Go to next peak if not in annotation list, otherwise annotate!
@@ -346,10 +346,10 @@ class PlotBase(plugin.OutputPlugin):
                 y_ = getattr(rp, 'y')
 
                 ax.plot([x_], [y_],
-                        marker='*',
-                        color='yellow',
-                        linewidth=0, alpha=0.5,
-                        markersize=10)
+                        marker='X',
+                        color='k',
+                        linewidth=0, alpha=0.7,
+                        markersize=15)
 
         # Plot the PMT numbers
         for pmt in pmts_hit:
@@ -863,8 +863,8 @@ class PeakViewer(PlotBase):
         peak_text += 'Area: %0.2f pe, contained in %d hits in %d channels\n' % (
             peak.area, len(peak.hits), len(peak.contributing_channels))
         peak_text += 'Fraction in top: %0.2f\n' % peak.area_fraction_top
-        peak_text += 'Peak widths: hit time std = %dns,\n' \
-                     ' 50%% area range = %dns, 90%% area range = %dns\n' % (peak.hit_time_std,
+        peak_text += 'Peak shape: rise time = %dns,\n' \
+                     ' 50%% area range = %dns, 90%% area range = %dns\n' % (-peak.area_decile_from_midpoint[1],
                                                                             peak.range_area_decile[5],
                                                                             peak.range_area_decile[9])
         try:
