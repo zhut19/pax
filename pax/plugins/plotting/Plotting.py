@@ -860,8 +860,8 @@ class PeakViewer(PlotBase):
             peak.left,
             peak.right,
             peak.hit_time_mean / units.us,)
-        peak_text += 'Area: %0.2f pe, contained in %d hits in %d channels\n' % (
-            peak.area, len(peak.hits), len(peak.contributing_channels))
+        peak_text += 'Area: %0.2f pe, contained in %d hits\n' % (
+            peak.area, len(peak.hits))
         peak_text += 'Fraction in top: %0.2f\n' % peak.area_fraction_top
         peak_text += 'Peak shape: rise time = %dns,\n' \
                      ' 50%% area range = %dns, 90%% area range = %dns\n' % (-peak.area_decile_from_midpoint[1],
