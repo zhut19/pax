@@ -346,10 +346,10 @@ class PlotBase(plugin.OutputPlugin):
                 y_ = getattr(rp, 'y')
 
                 ax.plot([x_], [y_],
-                        marker='X',
+                        marker='+',
                         color='k',
-                        linewidth=0, alpha=0.7,
-                        markersize=15)
+                        linewidth=0, alpha=0.5,
+                        markersize=10)
 
         # Plot the PMT numbers
         for pmt in pmts_hit:
@@ -729,8 +729,7 @@ class PeakViewer(PlotBase):
             epoch_to_human_time(self.trigger_time_ns),
             self.trigger_time_ns % units.s)
         suspicious_channels = np.where(event.is_channel_suspicious)[0]
-        event_text += 'Suspicious channels (# hits rejected):\n ' + ', '.join([
-            '%s (%s)' % (ch, event.n_hits_rejected[ch]) for ch in suspicious_channels]) + '\n'
+        
         self.fig.text(x, y, self.wrap_multiline(event_text, self.max_characters), verticalalignment='top')
         self.peak_text = self.fig.text(x, start_y + 3 * row_y + y_sep_middle, '', verticalalignment='top')
 
