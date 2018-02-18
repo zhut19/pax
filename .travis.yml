@@ -43,9 +43,7 @@ matrix:
 
 notifications:
   email:
-    - ctunnell@nikhef.nl
-    - jaalbers@nikhef.nl
-    - feigao.ge@gmail.com
+    - tz2263@columbia.edu
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/09d571df0e21d4d4182f
