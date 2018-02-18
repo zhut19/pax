@@ -340,16 +340,17 @@ class PlotBase(plugin.OutputPlugin):
                        alpha=0.4,
                        s=200)
 
-        for rp in peak.reconstructed_positions:
-            if rp.algorithm == 'PosRecNeuralNet':
-                x_ = getattr(rp, 'x')
-                y_ = getattr(rp, 'y')
+        if peak.type == 's2':
+            for rp in peak.reconstructed_positions:
+                if rp.algorithm == 'PosRecNeuralNet':
+                    x_ = getattr(rp, 'x')
+                    y_ = getattr(rp, 'y')
 
-                ax.plot([x_], [y_],
-                        marker='+',
-                        color='k',
-                        linewidth=0, alpha=0.5,
-                        markersize=10)
+                    ax.plot([x_], [y_],
+                            marker='x',
+                            color='r',
+                            alpha=0.7,
+                            markersize=14, markeredgewidth = 3)
 
         # Plot the PMT numbers
         for pmt in pmts_hit:
