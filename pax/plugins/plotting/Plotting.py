@@ -739,7 +739,7 @@ class PeakViewer(PlotBase):
             epoch_to_human_time(self.trigger_time_ns),
             self.trigger_time_ns % units.s)
         suspicious_channels = np.where(event.is_channel_suspicious)[0]
-        
+
         self.fig.text(x, y, self.wrap_multiline(event_text, self.max_characters), verticalalignment='top')
         self.peak_text = self.fig.text(x, start_y + 3 * row_y + y_sep_middle, '', verticalalignment='top')
 
@@ -877,13 +877,14 @@ class PeakViewer(PlotBase):
                                                                             peak.range_area_decile[5],
                                                                             peak.range_area_decile[9])
         try:
-            pos = peak.get_position_from_preferred_algorithm(['PosRecNeuralNet', 'PosRecTopPatternFit', 
+            pos = peak.get_position_from_preferred_algorithm(['PosRecNeuralNet', 'PosRecTopPatternFit',
                                                               'PosRecRobustWeightedMean', 'PosRecWeightedSum',
                                                               'PosRecMaxPMT'])
         except ValueError:
             peak_text += "Position reconstruction failed!"
         else:
-            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n' % (pos.x, pos.y, pos.goodness_of_fit)
+            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n'\
+            % (pos.x, pos.y, pos.goodness_of_fit)
         peak_text += 'Top spread: %0.1fcm, Bottom spread: %0.1fcm\n' % (peak.top_hitpattern_spread,
                                                                         peak.bottom_hitpattern_spread)
         pos3d = peak.get_reconstructed_position_from_algorithm('PosRecThreeDPatternFit')
