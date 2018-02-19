@@ -738,8 +738,11 @@ class PeakViewer(PlotBase):
         event_text += 'Event recorded at %s UTC, %09d ns\n' % (
             epoch_to_human_time(self.trigger_time_ns),
             self.trigger_time_ns % units.s)
+        '''
         suspicious_channels = np.where(event.is_channel_suspicious)[0]
-
+        event_text += 'Suspicious channels (# hits rejected):\n ' + ', '.join([
+            '%s (%s)' % (ch, event.n_hits_rejected[ch]) for ch in suspicious_channels]) + '\n'
+        '''
         self.fig.text(x, y, self.wrap_multiline(event_text, self.max_characters), verticalalignment='top')
         self.peak_text = self.fig.text(x, start_y + 3 * row_y + y_sep_middle, '', verticalalignment='top')
 
@@ -883,7 +886,7 @@ class PeakViewer(PlotBase):
         except ValueError:
             peak_text += "Position reconstruction failed!"
         else:
-            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n'% (
+            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n' % (
                 pos.x, pos.y, pos.goodness_of_fit)
         peak_text += 'Top spread: %0.1fcm, Bottom spread: %0.1fcm\n' % (peak.top_hitpattern_spread,
                                                                         peak.bottom_hitpattern_spread)
