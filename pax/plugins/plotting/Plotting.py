@@ -343,7 +343,7 @@ class PlotBase(plugin.OutputPlugin):
         # Plot position if it's an S2
         if peak.type == 's2':
             for rp in peak.reconstructed_positions:
-                if rp.algorithm == 'PosRecTopPatternFit':
+                if rp.algorithm == 'PosRecNeuralNet':
                     x_peak = getattr(rp, 'x')
                     y_peak = getattr(rp, 'y')
 
@@ -354,7 +354,7 @@ class PlotBase(plugin.OutputPlugin):
         if len(event.interactions) != 0:
             s2 = event.peaks[event.interactions[0].s2]
             for rp in s2.reconstructed_positions:
-                if rp.algorithm == 'PosRecTopPatternFit':
+                if rp.algorithm == 'PosRecNeuralNet':
                     x_peak = getattr(rp, 'x')
                     y_peak = getattr(rp, 'y')
 
@@ -877,14 +877,13 @@ class PeakViewer(PlotBase):
                                                                             peak.range_area_decile[5],
                                                                             peak.range_area_decile[9])
         try:
-            pos = peak.get_position_from_preferred_algorithm(['PosRecTopPatternFit', 'PosRecNeuralNet',
+            pos = peak.get_position_from_preferred_algorithm(['PosRecNeuralNet', 'PosRecTopPatternFit', 
                                                               'PosRecRobustWeightedMean', 'PosRecWeightedSum',
                                                               'PosRecMaxPMT'])
         except ValueError:
             peak_text += "Position reconstruction failed!"
         else:
-            peak_text += 'Top hitpattern reconstruction: (%0.2f, %0.2f), gof %0.1f.\n' % (
-                pos.x, pos.y, pos.goodness_of_fit)
+            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n' % (pos.x, pos.y, pos.goodness_of_fit)
         peak_text += 'Top spread: %0.1fcm, Bottom spread: %0.1fcm\n' % (peak.top_hitpattern_spread,
                                                                         peak.bottom_hitpattern_spread)
         pos3d = peak.get_reconstructed_position_from_algorithm('PosRecThreeDPatternFit')
