@@ -343,7 +343,7 @@ class PlotBase(plugin.OutputPlugin):
         # Plot position if it's an S2
         if peak.type == 's2':
             for rp in peak.reconstructed_positions:
-                if rp.algorithm == 'PosRecNeuralNet':
+                if rp.algorithm == 'PosRecTopPatternFit':
                     x_peak = getattr(rp, 'x')
                     y_peak = getattr(rp, 'y')
 
@@ -354,7 +354,7 @@ class PlotBase(plugin.OutputPlugin):
         if len(event.interactions) != 0:
             s2 = event.peaks[event.interactions[0].s2]
             for rp in s2.reconstructed_positions:
-                if rp.algorithm == 'PosRecNeuralNet':
+                if rp.algorithm == 'PosRecTopPatternFit':
                     x_peak = getattr(rp, 'x')
                     y_peak = getattr(rp, 'y')
 
@@ -851,8 +851,8 @@ class PeakViewer(PlotBase):
         # Update the hitpatterns
         self.top_hitp_ax.cla()
         self.bot_hitp_ax.cla()
-        self.top_hitp_sc = self.plot_hitpattern(peak=peak, ax=self.top_hitp_ax, array='top')
-        self.bot_hitp_sc = self.plot_hitpattern(peak=peak, ax=self.bot_hitp_ax, array='bottom')
+        self.top_hitp_sc = self.plot_hitpattern(peak=peak, event=self.event, ax=self.top_hitp_ax, array='top')
+        self.bot_hitp_sc = self.plot_hitpattern(peak=peak, event=self.event, ax=self.bot_hitp_ax, array='bottom')
 
         # Update peak waveforms
         peak_padding = self.config.get('peak_padding_samples', 30)
