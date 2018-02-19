@@ -323,7 +323,7 @@ class PlotBase(plugin.OutputPlugin):
                     linewidth=0, alpha=0.5,
                     markersize=10 * size_factor)
 
-    def plot_hitpattern(self, peak, array='top', ax=None):
+    def plot_hitpattern(self, peak, event, array='top', ax=None):
         if ax is None:
             ax = plt.gca()
         if self.config.get('show_all_pmts', True):
@@ -340,17 +340,26 @@ class PlotBase(plugin.OutputPlugin):
                        alpha=0.4,
                        s=200)
 
+        # Plot position if it's an S2
         if peak.type == 's2':
             for rp in peak.reconstructed_positions:
                 if rp.algorithm == 'PosRecNeuralNet':
-                    x_ = getattr(rp, 'x')
-                    y_ = getattr(rp, 'y')
+                    x_peak = getattr(rp, 'x')
+                    y_peak = getattr(rp, 'y')
 
-                    ax.plot([x_], [y_],
-                            marker='x',
-                            color='r',
-                            alpha=0.7,
-                            markersize=14, markeredgewidth = 3)
+                    ax.plot([x_peak], [y_peak],
+                            marker='x', color='r', alpha=0.8, markersize=14, markeredgewidth=3)
+
+        # Plot main S2 position if there is one
+        if len(event.interactions) != 0:
+            s2 = event.peaks[event.interactions[0].s2]
+            for rp in s2.reconstructed_positions:
+                if rp.algorithm == 'PosRecNeuralNet':
+                    x_peak = getattr(rp, 'x')
+                    y_peak = getattr(rp, 'y')
+
+                    ax.plot([x_peak], [y_peak],
+                            marker='x', color='orange', alpha=0.4, markersize=14, markeredgewidth=3)
 
         # Plot the PMT numbers
         for pmt in pmts_hit:
@@ -425,7 +434,7 @@ class PlottingHitPattern(PlotBase):
                         continue
                     ax = subplots_to_use.pop(0)
                     ax.set_title('%s %s' % (peak_type, array))
-                    self.plot_hitpattern(peak=peak, array=array, ax=ax)
+                    self.plot_hitpattern(peak=peak, event=event, array=array, ax=ax)
 
 
 class PlotChannelWaveforms3D(PlotBase):
