@@ -883,8 +883,8 @@ class PeakViewer(PlotBase):
         except ValueError:
             peak_text += "Position reconstruction failed!"
         else:
-            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n'\
-            % (pos.x, pos.y, pos.goodness_of_fit)
+            peak_text += 'Neural network reconstruction: (%0.2f, %0.2f), gof %0.1f.\n'% (
+                pos.x, pos.y, pos.goodness_of_fit)
         peak_text += 'Top spread: %0.1fcm, Bottom spread: %0.1fcm\n' % (peak.top_hitpattern_spread,
                                                                         peak.bottom_hitpattern_spread)
         pos3d = peak.get_reconstructed_position_from_algorithm('PosRecThreeDPatternFit')
