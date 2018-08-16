@@ -64,7 +64,8 @@ class SumWaveformProperties(plugin.TransformPlugin):
     def transform_event(self, event):
         dt = self.dt
         field_length = self.wv_field_len
-        for peak in event.peaks:
+        peaks_to_delete = []
+        for peak_i, peak in enumerate(event.peaks):
             peak.sum_waveform = np.zeros(field_length, dtype=peak.sum_waveform.dtype)
             peak.sum_waveform_top = np.zeros(field_length, dtype=peak.sum_waveform.dtype)
 
@@ -86,10 +87,10 @@ class SumWaveformProperties(plugin.TransformPlugin):
             # Don't weigh negative samples for computation of center of gravity
             weights = np.clip(w, 0, float('inf'))
             if not np.sum(weights) > 0:
-                self.log.warning("Sum waveform of peak %d-%d (%0.2f pe area) sums to a nonpositive value... unusual!"
-                                 " Cannot align peak's sum waveform, storing zeros instead." % (peak.left,
-                                                                                                peak.right, peak.area))
-                peak.center_time = float('nan')
+                self.log.debug("Sum waveform of peak %d %d-%d (%0.2f pe area) sums to a nonpositive value... unusual!"
+                               " Cannot align peak's sum waveform, and will be deleted." % (peak_i, peak.left,
+                                                                                            peak.right, peak.area))
+                peaks_to_delete.append(peak_i)
                 continue
             else:
                 peak.center_time = (peak.left + np.average(np.arange(len(w)),
@@ -130,12 +131,21 @@ class SumWaveformProperties(plugin.TransformPlugin):
                     pmt_index = hitt['channel']
                     peak.coincidence_per_channel[pmt_index] = 1
 
+            # varying tight coincidence intervals
+            peak.tight_coincidence_thresholds = np.zeros(5, dtype=np.int16)
+            for ip, window in enumerate([5, 4, 3, 2, 1]):
+                left = peak.index_of_maximum - window
+                right = peak.index_of_maximum + window
+                peak.tight_coincidence_thresholds[ip] = len(np.unique(peak.hits['channel'][(x >= left) & (x <= right)]))
+
             # Store the waveform; for tpc also store the top waveform
             put_w_in_center_of_field(w, peak.sum_waveform, cog_idx)
             if peak.detector == 'tpc':
                 put_w_in_center_of_field(event.get_sum_waveform('tpc_top').samples[peak.left:peak.right + 1],
                                          peak.sum_waveform_top, cog_idx)
 
+        # Delete any peaks which have nonpositive sumwf
+        event.peaks = [p for i, p in enumerate(event.peaks) if i not in peaks_to_delete]
         return event
 
 

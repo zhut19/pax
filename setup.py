@@ -3,29 +3,21 @@
 import six
 import os
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
+# Fetch requirements, but remove explicit version pins.
+# Use pip install -r requirements.txt for repeatable installations
 requirements = open('requirements.txt').read().splitlines()
+requirements = [x.split('=')[0] for x in requirements]
 
 # configparser is not in the python2 standard library:
 if six.PY2:
     requirements.append('configparser')
 
-# For some reason h5py is often not seen by pip if it was installed by conda...
-# so check for h5py presence manually, and remove it from requirements if already found.
-try:
-    import h5py
-except ImportError:
-    pass
-else:
-    del requirements[requirements.index('h5py')]
-
+# Avoids "KeyError: 'ROOT'" in TravisCI, see PR #250.
 try:
     import ROOT
 except ImportError:
@@ -44,7 +36,7 @@ test_requirements = requirements + ['flake8',
 
 setup(
     name='pax',
-    version='6.9.0',
+    version='6.10.1',
     description='PAX is the raw data processor for LXe TPCs.',
     long_description=readme + '\n\n' + history,
     author='Christopher Tunnell and Jelle Aalbers for the XENON1T collaboration',
