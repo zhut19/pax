@@ -35,7 +35,7 @@ class InterpolateAndExtrapolate(object):
         # We are not ruturning sum of weight when using np.average
         return np.average(self.values[indices], weights=1/np.clip(distances, 1e-6, float('inf')))
 
-    #v__call__ = np.vectorize(__call__, signature = '(),(i)->()')
+    v__call__ = np.vectorize(__call__, signature = '(),(i)->()')
 
 
 class InterpolatingMap(object):
@@ -114,7 +114,7 @@ class InterpolatingMap(object):
                 raise ValueError("InterpolatingMap.get_value only takes map_name keyword argument")
 
         map_name = kwargs.get('map_name', 'map')
-        if True: #len(np.array(coordinates).shape) <= 1:
+        if len(np.array(coordinates).shape) <= 1:
             result = self.interpolators[map_name](coordinates)
             try:
                 return float(result[0])
