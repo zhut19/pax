@@ -125,6 +125,12 @@ class DesaturatePulses(plugin.TransformPlugin):
 
         return event
 
+    def waveform_in_pe(self, p):
+        """Return waveform in pe/bin above baseline of a pulse"""
+        w = self.reference_baseline - p.raw_data.astype(np.float) - p.baseline
+        w *= adc_to_pe(self.config, p.channel)
+        return w
+
 
 class AfterPulsingCorrections(DesaturatePulses):
     """Replace the tail of after pulsing channel with scaled sum waveform of other channels
@@ -138,7 +144,7 @@ class AfterPulsingCorrections(DesaturatePulses):
             if pulse.length < 300 or pulse.channel not in self.config['large_after_pulsing_channels']:
                 continue
 
-            w = waveform_in_pe(pulse)
+            w = self.waveform_in_pe(pulse)
             if max(w) < 10:
                 continue  # Skip if the pulse is too small
 
@@ -153,7 +159,7 @@ class AfterPulsingCorrections(DesaturatePulses):
             sumw = np.zeros(max_right - min_left + 1)
             for p in other_pulses:
                 offset = p.left - min_left
-                sumw[offset:offset + len(p.raw_data)] += waveform_in_pe(p)
+                sumw[offset:offset + len(p.raw_data)] += self.waveform_in_pe(p)
 
             # Crop it to include just the part that overlaps with this pulse
             offset = pulse.left - min_left
@@ -197,9 +203,3 @@ class AfterPulsingCorrections(DesaturatePulses):
             pulse.raw_data = w
 
         return event
-
-    def waveform_in_pe(self, p):
-        """Return waveform in pe/bin above baseline of a pulse"""
-        w = self.reference_baseline - p.raw_data.astype(np.float) - p.baseline
-        w *= adc_to_pe(self.config, p.channel)
-        return w
